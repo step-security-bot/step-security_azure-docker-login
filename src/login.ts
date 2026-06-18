@@ -48,4 +48,6 @@ export async function run() {
     console.log('DOCKER_CONFIG environment variable is set');
 }
 
-run().catch(core.setFailed);
+if (require.main === module) {
+    run().catch(core.setFailed);
+}
