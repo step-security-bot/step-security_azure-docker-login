@@ -21,48 +21,10 @@ const core = __nccwpck_require__(7484);
 const io = __nccwpck_require__(4994);
 const path = __nccwpck_require__(6928);
 const fs = __nccwpck_require__(9896);
-const axios_1 = __nccwpck_require__(7269);
-function validateSubscription() {
-    var _a, _b;
-    return __awaiter(this, void 0, void 0, function* () {
-        const eventPath = process.env.GITHUB_EVENT_PATH;
-        let repoPrivate;
-        if (eventPath && fs.existsSync(eventPath)) {
-            const eventData = JSON.parse(fs.readFileSync(eventPath, 'utf8'));
-            repoPrivate = (_a = eventData === null || eventData === void 0 ? void 0 : eventData.repository) === null || _a === void 0 ? void 0 : _a.private;
-        }
-        const upstream = 'Azure/docker-login';
-        const action = process.env.GITHUB_ACTION_REPOSITORY;
-        const docsUrl = 'https://docs.stepsecurity.io/actions/stepsecurity-maintained-actions';
-        core.info('');
-        core.info('\u001b[1;36mStepSecurity Maintained Action\u001b[0m');
-        core.info(`Secure drop-in replacement for ${upstream}`);
-        if (repoPrivate === false)
-            core.info('\u001b[32m\u2713 Free for public repositories\u001b[0m');
-        core.info(`\u001b[36mLearn more:\u001b[0m ${docsUrl}`);
-        core.info('');
-        if (repoPrivate === false)
-            return;
-        const serverUrl = process.env.GITHUB_SERVER_URL || 'https://github.com';
-        const body = { action: action || '' };
-        if (serverUrl !== 'https://github.com')
-            body.ghes_server = serverUrl;
-        try {
-            yield axios_1.default.post(`https://agent.api.stepsecurity.io/v1/github/${process.env.GITHUB_REPOSITORY}/actions/maintained-actions-subscription`, body, { timeout: 3000 });
-        }
-        catch (error) {
-            if ((0, axios_1.isAxiosError)(error) && ((_b = error.response) === null || _b === void 0 ? void 0 : _b.status) === 403) {
-                core.error(`\u001b[1;31mThis action requires a StepSecurity subscription for private repositories.\u001b[0m`);
-                core.error(`\u001b[31mLearn how to enable a subscription: ${docsUrl}\u001b[0m`);
-                process.exit(1);
-            }
-            core.info('Timeout or API not reachable. Continuing to next step.');
-        }
-    });
-}
+const validate_subscription_1 = __nccwpck_require__(4424);
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
-        yield validateSubscription();
+        yield (0, validate_subscription_1.validateSubscription)();
         let username = core.getInput('username', { required: true });
         let password = core.getInput('password', { required: true });
         let loginServer = core.getInput('login-server', { required: true });
@@ -102,6 +64,68 @@ function run() {
 }
 exports.run = run;
 run().catch(core.setFailed);
+
+
+/***/ }),
+
+/***/ 4424:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.validateSubscription = void 0;
+const core = __nccwpck_require__(7484);
+const fs = __nccwpck_require__(9896);
+const axios_1 = __nccwpck_require__(7269);
+function validateSubscription() {
+    var _a, _b;
+    return __awaiter(this, void 0, void 0, function* () {
+        const eventPath = process.env.GITHUB_EVENT_PATH;
+        let repoPrivate;
+        if (eventPath && fs.existsSync(eventPath)) {
+            const eventData = JSON.parse(fs.readFileSync(eventPath, 'utf8'));
+            repoPrivate = (_a = eventData === null || eventData === void 0 ? void 0 : eventData.repository) === null || _a === void 0 ? void 0 : _a.private;
+        }
+        const upstream = 'Azure/docker-login';
+        const action = process.env.GITHUB_ACTION_REPOSITORY;
+        const docsUrl = 'https://docs.stepsecurity.io/actions/stepsecurity-maintained-actions';
+        core.info('');
+        core.info('\u001b[1;36mStepSecurity Maintained Action\u001b[0m');
+        core.info(`Secure drop-in replacement for ${upstream}`);
+        if (repoPrivate === false)
+            core.info('\u001b[32m✓ Free for public repositories\u001b[0m');
+        core.info(`\u001b[36mLearn more:\u001b[0m ${docsUrl}`);
+        core.info('');
+        if (repoPrivate === false)
+            return;
+        const serverUrl = process.env.GITHUB_SERVER_URL || 'https://github.com';
+        const body = { action: action || '' };
+        if (serverUrl !== 'https://github.com')
+            body.ghes_server = serverUrl;
+        try {
+            yield axios_1.default.post(`https://agent.api.stepsecurity.io/v1/github/${process.env.GITHUB_REPOSITORY}/actions/maintained-actions-subscription`, body, { timeout: 3000 });
+        }
+        catch (error) {
+            if ((0, axios_1.isAxiosError)(error) && ((_b = error.response) === null || _b === void 0 ? void 0 : _b.status) === 403) {
+                core.error(`\u001b[1;31mThis action requires a StepSecurity subscription for private repositories.\u001b[0m`);
+                core.error(`\u001b[31mLearn how to enable a subscription: ${docsUrl}\u001b[0m`);
+                process.exit(1);
+            }
+            core.info('Timeout or API not reachable. Continuing to next step.');
+        }
+    });
+}
+exports.validateSubscription = validateSubscription;
 
 
 /***/ }),

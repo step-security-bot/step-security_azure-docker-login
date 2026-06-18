@@ -4,6 +4,8 @@ import * as io from '@actions/io';
 import * as fs from 'fs';
 import * as path from 'path';
 
+jest.mock('../src/validate-subscription');
+
 describe('Testing all files in login file.', () => {
     test('run() - create authtoken and make config file if it doesn\'t exist', async () => {
         jest.spyOn(core, 'getInput').mockImplementation((inputName, options) => {
