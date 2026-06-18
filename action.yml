@@ -18,4 +18,4 @@ branding:
   color: 'green'
 runs:
   using: 'node24'
-  main: 'lib/login.js'
+  main: 'dist/index.js'
