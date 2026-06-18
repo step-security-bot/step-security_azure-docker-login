@@ -1,0 +1,53 @@
+import * as core from '@actions/core';
+import * as io from '@actions/io';
+import * as path from 'path';
+import * as fs from 'fs';
+import {validateSubscription} from './validate-subscription';
+
+interface dockerConfig {
+    auths?: {[key: string]: {auth: string}}
+}
+
+export async function run() {
+    await validateSubscription();
+    let username = core.getInput('username', { required: true });
+    let password = core.getInput('password', { required: true });
+    let loginServer = core.getInput('login-server', { required: true });
+    let authenticationToken = Buffer.from(`${username}:${password}`).toString('base64');
+
+    let config: dockerConfig;
+
+    const runnerTempDirectory = process.env['RUNNER_TEMP']; // Using process.env until the core libs are updated
+    const dirPath = process.env['DOCKER_CONFIG'] || path.join(runnerTempDirectory, `docker_login_${Date.now()}`);
+    await io.mkdirP(dirPath);
+    const dockerConfigPath = path.join(dirPath, `config.json`);
+    if (fs.existsSync(dockerConfigPath)) {
+        try {
+            config = JSON.parse(fs.readFileSync(dockerConfigPath, 'utf8'));
+            if (!config.auths) {
+                config.auths = {};
+            }
+            config.auths[loginServer] = { auth: authenticationToken };
+        } catch (err) {
+            core.warning(`Existing Docker config at ${dockerConfigPath} could not be parsed, overwriting.`);
+            config = undefined;
+        }
+    }
+    if (!config) {
+        config = {
+            "auths": {
+                [loginServer]: {
+                    auth: authenticationToken
+                }
+            }
+        }
+    }
+    core.debug(`Writing docker config contents to ${dockerConfigPath}`);
+    fs.writeFileSync(dockerConfigPath, JSON.stringify(config));
+    core.exportVariable('DOCKER_CONFIG', dirPath);
+    console.log('DOCKER_CONFIG environment variable is set');
+}
+
+if (require.main === module) {
+    run().catch(core.setFailed);
+}
