@@ -29,7 +29,7 @@ export async function run() {
             }
             config.auths[loginServer] = { auth: authenticationToken };
         } catch (err) {
-            // if the file is invalid, just overwrite it
+            core.warning(`Existing Docker config at ${dockerConfigPath} could not be parsed, overwriting.`);
             config = undefined;
         }
     }
